@@ -1,0 +1,2 @@
+#	Artwork	Title	Artist	Album	Genre	BPM	Rating	Time	Key	Date Added
+0	artwork	title	artist	album	genre	bpm	rating	time	key
