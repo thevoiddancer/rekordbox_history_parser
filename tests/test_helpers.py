@@ -1,6 +1,13 @@
 import pytest
 
-from rekordbox_history_parser.helpers import history_to_dict, trim_data, playlist_to_string
+from rekordbox_history_parser.helpers import (
+    history_to_dict,
+    trim_data,
+    playlist_to_string,
+    renumerate_playlist,
+    write_to_text,
+)
+
 
 @pytest.mark.parametrize(
     "filename, error, expected",
@@ -87,4 +94,27 @@ def test_output_string():
     assert len(result.split('\n')) == 1
     assert 'artist' in result
 
+
+@pytest.mark.parametrize(
+    'keys, expected',
+    [
+        pytest.param(
+            ['order', 'title', 'artist'],
+            {'first value': '1'},
+            id='renumerate with order'
+        ),
+        pytest.param(
+            ['title', 'artist'],
+            {'first value': 'title'},
+            id='renumerate without order'
+        ),
+    ]
+)
+def test_renumerate_playlist(keys, expected):
+    filename = 'tests/data/history_ok.txt'
+    playlist = history_to_dict(filename)
+    playlist = trim_data(playlist, keys)
+    result = renumerate_playlist(playlist, keys)
+
+    assert next(iter(result[0].values())) == expected['first value']
 
