@@ -1,5 +1,6 @@
 import csv
 import math
+import typing as tp
 
 COLUMNS_HISTORY = ['order', 'artwork', 'title', 'artist', 'album', 'genre', 'BPM', 'rating', 'time', 'key', 'added']
 COLUMNS_RECORDING = ['order', 'title', 'artist', 'file', 'timestamp']
@@ -29,12 +30,10 @@ def detect_encoding(filename: str):
         try:
             with open(filename, 'r', encoding=encoding) as file:
                 file.readline()
-            break
-        except:
+            return encoding
+        except UnicodeDecodeError:
             continue
-    else:
-        raise ValueError('Encoding not in the list of encodings')
-    return encoding
+    raise ValueError('Encoding not in the list of encodings')
 
 
 def history_to_dict(filename: str) -> list[dict[str, str]]:
@@ -70,6 +69,7 @@ def history_to_dict(filename: str) -> list[dict[str, str]]:
     return data
 
 
+# TODO: add column check
 def recording_to_dict(filename: str):
     """Parses the playlist .cue file into a list of dictionary.
 
@@ -117,7 +117,7 @@ def recording_to_dict(filename: str):
     return data
 
 
-def trim_playlist(playlist: list[dict[str, str]], keys: list[str]):
+def trim_playlist(playlist: list[dict[str, str]], keys: tp.Optional[list[str]] = None):
     """Trims the playlist to just the columns specified in keys.
 
     Parameters
@@ -137,6 +137,8 @@ def trim_playlist(playlist: list[dict[str, str]], keys: list[str]):
     ValueError
         If key is specified that does not exist in the input playlist.
     """
+    if keys is None:
+        keys = [k for k in playlist[0].keys()]
     if (missing_keys := set(keys).difference(set(playlist[0].keys()))):
         raise ValueError(f'Keys not found: {missing_keys}')
     playlist = [{k: song[k] for k in keys} for song in playlist]
@@ -167,7 +169,7 @@ def playlist_to_string(playlist):
     return output_string
 
 
-def renumerate_playlist(playlist, keys):
+def renumerate_playlist(playlist):
     """Renumerates the playlist list.
 
     Parameters
@@ -186,7 +188,7 @@ def renumerate_playlist(playlist, keys):
     ------
     None
     """
-    if 'order' in keys:
+    if 'order' in playlist[0]:
         digits = math.ceil(math.log10(len(playlist)))
         for idx, song in enumerate(playlist):
             song['order'] = str(idx + 1).zfill(digits)
@@ -207,7 +209,7 @@ def write_to_text(filename, playlist):
         file.write(output)
 
 
-def write_to_csv(filename, columns, playlist):
+def write_to_csv(filename, playlist, columns):
     filename = new_name(filename, 'csv')
 
     with open(filename, 'w') as file:
