@@ -2,10 +2,10 @@ import pytest
 
 from rekordbox_history_parser.helpers import (
     history_to_dict,
-    trim_data,
     playlist_to_string,
     renumerate_playlist,
     write_to_text,
+    trim_playlist
 )
 
 
@@ -64,15 +64,15 @@ def test_hist_to_dict(filename, error, expected):
         ),
     ]
 )
-def test_trim_data(keys, error, expected):
+def test_trim_playlist(keys, error, expected):
     filename = 'tests/data/history_ok.txt'
     playlist = history_to_dict(filename)
 
     if error:
         with pytest.raises(error):
-            trim_data(playlist, keys)
+            trim_playlist(playlist, keys)
     else:
-        result = trim_data(playlist, keys)
+        result = trim_playlist(playlist, keys)
         assert len(result[0]) == expected['keys_count']
 
 
@@ -88,7 +88,7 @@ def test_output_string():
     filename = 'tests/data/history_ok.txt'
     keys = ['title', 'artist']
     playlist = history_to_dict(filename)
-    playlist = trim_data(playlist, keys)
+    playlist = trim_playlist(playlist, keys)
     result = playlist_to_string(playlist)
 
     assert len(result.split('\n')) == 1
@@ -113,7 +113,7 @@ def test_output_string():
 def test_renumerate_playlist(keys, expected):
     filename = 'tests/data/history_ok.txt'
     playlist = history_to_dict(filename)
-    playlist = trim_data(playlist, keys)
+    playlist = trim_playlist(playlist, keys)
     result = renumerate_playlist(playlist, keys)
 
     assert next(iter(result[0].values())) == expected['first value']

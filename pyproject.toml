@@ -8,12 +8,44 @@ readme = "README.md"
 packages = [{include = "rekordbox_history_parser", from="src"}]
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "^3.11"
 
 [tool.poetry.group.dev.dependencies]
 ipykernel = "^6.29.5"
 pytest = "^8.4.1"
+ruff = "^0.12.11"
+pytest-ruff = "^0.5"
+pytest-cov = "^6.2.1"
+pytest-mypy = "^1.0.1"
+mypy = "^1.17.1"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+addopts = "-rfxX --mypy --ruff --verbose --cov-report html --cov-report term-missing --cov=budget_app --cov=home_budget"
+testpaths = [
+    "tests",
+    "src",
+]
+markers = [
+    "ruff",
+#    "mypy",
+]
+
+[tool.ruff]
+exclude = [".git", ".pytest_cache", ".mypy_cache", ".vscode"]
+line-length = 100
+target-version = "py311"
+output-format = "full"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "C", "B", "I", "N"]
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+
+[tool.ruff.format]
+docstring-code-format = false
+

@@ -1,3 +1,4 @@
+import typing as tp
 import csv
 import math
 
@@ -214,3 +215,19 @@ def write_to_csv(filename, columns, playlist):
         writer = csv.DictWriter(file, fieldnames=columns)
         writer.writeheader()
         writer.writerows(playlist)
+
+
+def factory_parser(kind: str) -> tp.Callable:
+    if kind == 'history':
+        return history_to_dict
+    elif kind == 'recording':
+        return recording_to_dict
+    else:
+        raise ValueError(f'Unknown type: {kind}')
+
+
+def factory_outputter(kind: str) -> tp.Callable:
+    if kind == 'csv':
+        return write_to_csv
+    elif kind == 'txt':
+        return write_to_text
