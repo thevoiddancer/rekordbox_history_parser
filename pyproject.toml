@@ -5,7 +5,7 @@ description = "Parser for rekordbox history .txt and recording .cue files."
 authors = ["thevoiddancer <tomislav.nazifovic@gmail.com>"]
 license = "MIT"
 readme = "README.md"
-packages = [{include = "rekordbox_history_parser", from="src"}]
+#packages = [{include = "rekordbox_history_parser", from="src"}]
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -24,7 +24,7 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.pytest.ini_options]
-addopts = "-rfxX --mypy --ruff --verbose --cov-report html --cov-report term-missing --cov=budget_app --cov=home_budget"
+addopts = "-rfxX --mypy --ruff --verbose --cov-report html --cov-report term-missing --cov=src --cov=tests"
 testpaths = [
     "tests",
     "src",
@@ -48,4 +48,7 @@ combine-as-imports = true
 
 [tool.ruff.format]
 docstring-code-format = false
+quote-style = "single"
 
+[tool.mypy]
+mypy_path = "src"

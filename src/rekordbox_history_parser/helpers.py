@@ -1,12 +1,25 @@
-import typing as tp
 import csv
 import math
+import typing as tp
 
-COLUMNS_HISTORY = ['order', 'artwork', 'title', 'artist', 'album', 'genre', 'BPM', 'rating', 'time', 'key', 'added']
+COLUMNS_HISTORY = [
+    'order',
+    'artwork',
+    'title',
+    'artist',
+    'album',
+    'genre',
+    'BPM',
+    'rating',
+    'time',
+    'key',
+    'added',
+]
 COLUMNS_RECORDING = ['order', 'title', 'artist', 'file', 'timestamp']
 
+Playlist = list[dict[str, str]]
 
-def detect_encoding(filename: str):
+def detect_encoding(filename: str) -> str:
     """Detects the file encoding from a list of hardcoded encodings
 
     Parameters
@@ -31,14 +44,14 @@ def detect_encoding(filename: str):
             with open(filename, 'r', encoding=encoding) as file:
                 file.readline()
             break
-        except:
+        except Exception:
             continue
     else:
         raise ValueError('Encoding not in the list of encodings')
     return encoding
 
 
-def history_to_dict(filename: str) -> list[dict[str, str]]:
+def history_to_dict(filename: str) -> Playlist:
     """Parses the history .txt file into a list of dictionary.
 
     Parameters
@@ -48,7 +61,7 @@ def history_to_dict(filename: str) -> list[dict[str, str]]:
 
     Returns
     -------
-    list[dict[str, str]]
+    Playlist
         List of songs played. Each song has all the available attributes.
 
     Raises
@@ -56,7 +69,7 @@ def history_to_dict(filename: str) -> list[dict[str, str]]:
     ValueError
         If number of columns is different the the expected. Indicates format change.
     """
-    data: list[dict[str, str]] = []
+    data: Playlist = []
     encoding = detect_encoding(filename)
 
     with open(filename, 'r', encoding=encoding) as file:
@@ -66,12 +79,12 @@ def history_to_dict(filename: str) -> list[dict[str, str]]:
             split_lines = line.split('\t')
             if len(split_lines) != len(COLUMNS_HISTORY):
                 raise ValueError(f'Incorrect number of columns for line {split_lines[0]}')
-            d = {k: v for k, v in zip(COLUMNS_HISTORY, split_lines)}
+            d = dict(zip(COLUMNS_HISTORY, split_lines, strict=False))
             data.append(d)
     return data
 
 
-def recording_to_dict(filename: str):
+def recording_to_dict(filename: str) -> Playlist:
     """Parses the playlist .cue file into a list of dictionary.
 
     Parameters
@@ -81,7 +94,7 @@ def recording_to_dict(filename: str):
 
     Returns
     -------
-    list[dict[str, str]]
+    Playlist
         List of songs played. Each song has all the available attributes.
 
     Raises
@@ -90,7 +103,7 @@ def recording_to_dict(filename: str):
         If number of columns is different the the expected. Indicates format change.
     """
     data = []
-    d = {}
+    d: dict = {}
     encoding = detect_encoding(filename)
     with open(filename, 'r', encoding=encoding) as file:
         for line in file.readlines():
@@ -118,19 +131,19 @@ def recording_to_dict(filename: str):
     return data
 
 
-def trim_playlist(playlist: list[dict[str, str]], keys: list[str]):
+def trim_playlist(playlist: Playlist, keys: list[str]) -> Playlist:
     """Trims the playlist to just the columns specified in keys.
 
     Parameters
     ----------
-    playlist : list[dict[str, str]]
+    playlist : Playlist
         Playlist
     keys : list[str]
         List of keys for trimming
 
     Returns
     -------
-    list[dict[str, str]]
+    Playlist
         Trimmed playlist dictionary
 
     Raises
@@ -138,25 +151,25 @@ def trim_playlist(playlist: list[dict[str, str]], keys: list[str]):
     ValueError
         If key is specified that does not exist in the input playlist.
     """
-    if (missing_keys := set(keys).difference(set(playlist[0].keys()))):
+    if missing_keys := set(keys).difference(set(playlist[0].keys())):
         raise ValueError(f'Keys not found: {missing_keys}')
     playlist = [{k: song[k] for k in keys} for song in playlist]
     return playlist
 
 
-def playlist_to_string(playlist):
+def playlist_to_string(playlist: Playlist) -> str:
     """Joins the playlist for a string output. Joins in order it's in the dictionary.
 
     Parameters
     ----------
-    playlist : list[dict[str, str]]
+    playlist : Playlist
         Playlist data
     keys : list[str]
         List of keys for trimming
 
     Returns
     -------
-    list[dict[str, str]]
+    Playlist
         Trimmed playlist dictionary
 
     Raises
@@ -168,19 +181,19 @@ def playlist_to_string(playlist):
     return output_string
 
 
-def renumerate_playlist(playlist, keys):
+def renumerate_playlist(playlist: Playlist, keys: list[str]) -> Playlist:
     """Renumerates the playlist list.
 
     Parameters
     ----------
-    playlist : list[dict[str, str]]
+    playlist : Playlist
         Playlist data
     keys : list[str]
         List of keys for trimming
 
     Returns
     -------
-    list[dict[str, str]]
+    Playlist
         Trimmed playlist dictionary
 
     Raises
@@ -194,13 +207,13 @@ def renumerate_playlist(playlist, keys):
     return playlist
 
 
-def new_name(filename, extension):
+def new_name(filename: str, extension: str) -> str:
     name = filename.rsplit('.', maxsplit=1)[0]
     name += '_output.' + extension
     return name
 
 
-def write_to_text(filename, playlist):
+def write_to_text(filename: str, playlist: Playlist, columns: list[str]) -> None:
     filename = new_name(filename, 'txt')
 
     with open(filename, 'w') as file:
@@ -208,7 +221,7 @@ def write_to_text(filename, playlist):
         file.write(output)
 
 
-def write_to_csv(filename, columns, playlist):
+def write_to_csv(filename: str, playlist: Playlist, columns: list[str]) -> None:
     filename = new_name(filename, 'csv')
 
     with open(filename, 'w') as file:
@@ -217,7 +230,7 @@ def write_to_csv(filename, columns, playlist):
         writer.writerows(playlist)
 
 
-def factory_parser(kind: str) -> tp.Callable:
+def factory_parser(kind: str) -> tp.Callable[[str], Playlist]:
     if kind == 'history':
         return history_to_dict
     elif kind == 'recording':
@@ -226,8 +239,10 @@ def factory_parser(kind: str) -> tp.Callable:
         raise ValueError(f'Unknown type: {kind}')
 
 
-def factory_outputter(kind: str) -> tp.Callable:
+def factory_outputter(kind: str) -> tp.Callable[[str, Playlist, list[str]], None]:
     if kind == 'csv':
         return write_to_csv
     elif kind == 'txt':
         return write_to_text
+    else:
+        raise ValueError(f'Unknown type: {kind}')

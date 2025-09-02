@@ -4,30 +4,16 @@ from rekordbox_history_parser.helpers import (
     history_to_dict,
     playlist_to_string,
     renumerate_playlist,
-    write_to_text,
-    trim_playlist
+    trim_playlist,
 )
 
 
 @pytest.mark.parametrize(
-    "filename, error, expected",
+    'filename, error, expected',
     [
-        pytest.param(
-            'history_ok.txt',
-            None,
-            {
-                'count': 1,
-                'title': 'title'
-            },
-            id='correct'
-        ),
-        pytest.param(
-            'history_error.txt',
-            ValueError,
-            None,
-            id='incorrect columns #'
-        ),
-    ]
+        pytest.param('history_ok.txt', None, {'count': 1, 'title': 'title'}, id='correct'),
+        pytest.param('history_error.txt', ValueError, None, id='incorrect columns #'),
+    ],
 )
 def test_hist_to_dict(filename, error, expected):
     filename = 'tests/data/' + filename
@@ -44,25 +30,10 @@ def test_hist_to_dict(filename, error, expected):
 @pytest.mark.parametrize(
     'keys, error, expected',
     [
-        pytest.param(
-            ['title', 'artist'],
-            None,
-            {'keys_count': 2},
-            id='correct trim'
-        ),
-        pytest.param(
-            [],
-            None,
-            {'keys_count': 0},
-            id='total trim'
-        ),
-        pytest.param(
-            ['title', 'artist', 'missing'],
-            ValueError,
-            None,
-            id='missing keys error'
-        ),
-    ]
+        pytest.param(['title', 'artist'], None, {'keys_count': 2}, id='correct trim'),
+        pytest.param([], None, {'keys_count': 0}, id='total trim'),
+        pytest.param(['title', 'artist', 'missing'], ValueError, None, id='missing keys error'),
+    ],
 )
 def test_trim_playlist(keys, error, expected):
     filename = 'tests/data/history_ok.txt'
@@ -99,16 +70,10 @@ def test_output_string():
     'keys, expected',
     [
         pytest.param(
-            ['order', 'title', 'artist'],
-            {'first value': '1'},
-            id='renumerate with order'
+            ['order', 'title', 'artist'], {'first value': '1'}, id='renumerate with order'
         ),
-        pytest.param(
-            ['title', 'artist'],
-            {'first value': 'title'},
-            id='renumerate without order'
-        ),
-    ]
+        pytest.param(['title', 'artist'], {'first value': 'title'}, id='renumerate without order'),
+    ],
 )
 def test_renumerate_playlist(keys, expected):
     filename = 'tests/data/history_ok.txt'
@@ -117,4 +82,3 @@ def test_renumerate_playlist(keys, expected):
     result = renumerate_playlist(playlist, keys)
 
     assert next(iter(result[0].values())) == expected['first value']
-
