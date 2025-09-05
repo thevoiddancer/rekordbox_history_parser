@@ -19,6 +19,7 @@ COLUMNS_RECORDING = ['order', 'title', 'artist', 'file', 'timestamp']
 
 Playlist = list[dict[str, str]]
 
+
 def detect_encoding(filename: str) -> str:
     """Detects the file encoding from a list of hardcoded encodings
 
@@ -213,7 +214,7 @@ def new_name(filename: str, extension: str) -> str:
     return name
 
 
-def write_to_text(filename: str, playlist: Playlist, columns: list[str]) -> None:
+def write_to_text(filename: str, playlist: Playlist, columns: list[str] | None = None) -> None:
     filename = new_name(filename, 'txt')
 
     with open(filename, 'w') as file:
@@ -221,7 +222,9 @@ def write_to_text(filename: str, playlist: Playlist, columns: list[str]) -> None
         file.write(output)
 
 
-def write_to_csv(filename: str, playlist: Playlist, columns: list[str]) -> None:
+def write_to_csv(filename: str, playlist: Playlist, columns: list[str] | None = None) -> None:
+    if columns is None:
+        columns = []
     filename = new_name(filename, 'csv')
 
     with open(filename, 'w') as file:

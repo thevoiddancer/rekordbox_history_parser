@@ -52,3 +52,6 @@ quote-style = "single"
 
 [tool.mypy]
 mypy_path = "src"
+
+[tool.poetry.scripts]
+rekordbox = "rekordbox_history_parser.cli:main"
