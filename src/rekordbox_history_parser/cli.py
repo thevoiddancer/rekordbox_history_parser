@@ -14,7 +14,7 @@ def main():
     parser.add_argument(
         '--type', required=True, choices=['history', 'recording'], help='Input file type'
     )
-    parser.add_argument('--columns', required=True, help='Comma-separated columns to keep')
+    parser.add_argument('--columns', required=True, help='Comma-separated columns to keep (history:[order,artwork,title,artist,album,genre,BPM,rating,time,key,added]; recording:[order,title,artist,file,timestamp])')
     parser.add_argument('--output', choices=['txt', 'csv'], default='string', help='Output format')
 
     args = parser.parse_args()
